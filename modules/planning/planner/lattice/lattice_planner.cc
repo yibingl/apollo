@@ -114,7 +114,7 @@ Status LatticePlanner::Plan(const TrajectoryPoint& planning_start_point,
     position_cost += FLAGS_stepwise_reference_line_position_cost;
     cnt += 1;
     auto status_per_line = PlanOnReferenceLine(planning_start_point,
-      frame, &(*it)); // Set Cost in Lattice Planner
+      frame, &(*it));  // Set Cost in Lattice Planner
     if (Status::OK() != status_per_line) {
       AWARN << "[LatticePlanner] planning on reference_line-" << cnt
             << " failed";
@@ -274,7 +274,7 @@ Status LatticePlanner::PlanOnReferenceLine(
       std::vector<apollo::common::FrenetFramePoint> lat_future_trajectory;
       if (!MapFutureTrajectoryToSL(future_trajectory, &lon_future_trajectory,
                                    &lat_future_trajectory,
-                                   reference_line_info)) {
+                                   discretized_reference_line)) {
         AERROR << "Auto tuning failed since no mapping "
                << "from future trajectory to lon-lat";
         // tuning_success = false;
@@ -380,11 +380,36 @@ DiscretizedTrajectory LatticePlanner::GetFutureTrajectory() const {
 }
 
 bool LatticePlanner::MapFutureTrajectoryToSL(
-    const DiscretizedTrajectory& future_trajectory,
-    std::vector<apollo::common::SpeedPoint>* st_points,
-    std::vector<apollo::common::FrenetFramePoint>* sl_points,
-    ReferenceLineInfo* reference_line_info) {
-  return false;
+  const DiscretizedTrajectory& future_trajectory,
+  std::vector<apollo::common::SpeedPoint>* st_points,
+  std::vector<apollo::common::FrenetFramePoint>* sl_points,
+  const std::vector<PathPoint> discretized_reference_line) {
+  if (0 == discretized_reference_line.size()) {
+    AERROR << "MapFutureTrajectoryToSL error";
+    return false;
+  }
+  for (const common::TrajectoryPoint& trajectory_point :
+    future_trajectory.trajectory_points()) {
+    const PathPoint& path_point = trajectory_point.path_point();
+    PathPoint matched_point = ReferenceLineMatcher::MatchToReferenceLine(
+      discretized_reference_line, path_point.x(), path_point.y());
+    std::array<double, 3> pose_s;
+    std::array<double, 3> pose_d;
+    ComputeInitFrenetState(matched_point, trajectory_point, &pose_s, &pose_d);
+    apollo::common::SpeedPoint st_point;
+    apollo::common::FrenetFramePoint sl_point;
+    st_point.set_s(pose_s[0]);
+    st_point.set_t(trajectory_point.relative_time());
+    st_point.set_v(pose_s[1]);
+    st_point.set_a(pose_s[2]);  // Not setting da
+    sl_point.set_s(pose_s[0]);
+    sl_point.set_l(pose_d[0]);
+    sl_point.set_dl(pose_d[0]);
+    sl_point.set_ddl(pose_d[0]);
+    st_points->emplace_back(std::move(st_point));
+    sl_points->emplace_back(std::move(sl_point));
+  }
+  return true;
 }
 
 }  // namespace planning

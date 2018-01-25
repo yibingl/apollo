@@ -68,7 +68,7 @@ class LatticePlanner : public Planner {
   bool MapFutureTrajectoryToSL(const DiscretizedTrajectory& future_trajectory,
     std::vector<apollo::common::SpeedPoint>* st_points,
     std::vector<apollo::common::FrenetFramePoint>* sl_points,
-    ReferenceLineInfo* reference_line_info);
+    const std::vector<apollo::common::PathPoint> discretized_reference_line);
 
   BehaviorDecider decider_;
 };
