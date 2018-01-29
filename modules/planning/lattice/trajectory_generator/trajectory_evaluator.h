@@ -95,6 +95,9 @@ class TrajectoryEvaluator {
   double LonCollisionCost(
       const std::shared_ptr<Curve1d>& lon_trajectory) const;
 
+  double LonCollisionCost(
+    const std::vector<apollo::common::SpeedPoint> st_points) const;
+
   double LonObjectiveCost(
       const std::shared_ptr<Curve1d>& lon_trajectory,
       const PlanningTarget& planning_target) const;
@@ -102,6 +105,10 @@ class TrajectoryEvaluator {
   double LonObjectiveCost(
       const std::vector<apollo::common::SpeedPoint> st_points,
       const PlanningTarget& planning_target) const;
+
+  bool InterpolateDenseStPoints(
+      const std::vector<apollo::common::SpeedPoint> st_points,
+      double t, double *traj_s) const;
 
   struct CostComparator
       : public std::binary_function<const PairCost&, const PairCost&, bool> {
