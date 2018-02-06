@@ -96,7 +96,6 @@ Status Dreamview::Init() {
   }
   server_.reset(new CivetServer(options));
 
-  image_.reset(new ImageHandler());
   websocket_.reset(new WebSocketHandler());
   map_service_.reset(new MapService());
   sim_control_.reset(new SimControl(map_service_.get()));
@@ -107,7 +106,10 @@ Status Dreamview::Init() {
   hmi_.reset(new HMI(websocket_.get(), map_service_.get()));
 
   server_->addWebSocketHandler("/websocket", *websocket_);
+#ifdef USE_IMAGE_HANDLER
+  image_.reset(new ImageHandler());
   server_->addHandler("/image", *image_);
+#endif
 
   ApolloApp::SetCallbackThreadNumber(FLAGS_dreamview_worker_num);
 

@@ -64,7 +64,13 @@ cc_library(
         ":simulation_world_service",
         "//modules/common/util:map_util",
         "//modules/dreamview/backend/common:dreamview_gflags",
+      ] + select({
+        "//tools/platforms:x86_64": [
         "//modules/dreamview/backend/handlers:image",
+        ],
+        "//conditions:default": [
+        ],
+    }) + [
         "//modules/dreamview/backend/handlers:websocket",
         "//modules/dreamview/backend/map:map_service",
         "//modules/dreamview/backend/sim_control",

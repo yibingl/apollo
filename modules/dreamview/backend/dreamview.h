@@ -24,7 +24,9 @@
 
 #include "modules/common/apollo_app.h"
 
+#ifdef USE_IMAGE_HANDLER
 #include "modules/dreamview/backend/handlers/image.h"
+#endif
 #include "modules/dreamview/backend/handlers/websocket.h"
 #include "modules/dreamview/backend/hmi/hmi.h"
 #include "modules/dreamview/backend/map/map_service.h"
@@ -54,7 +56,9 @@ class Dreamview : public apollo::common::ApolloApp {
   std::unique_ptr<CivetServer> server_;
   std::unique_ptr<SimControl> sim_control_;
   std::unique_ptr<WebSocketHandler> websocket_;
+#ifdef USE_IMAGE_HANDLER
   std::unique_ptr<ImageHandler> image_;
+#endif
   std::unique_ptr<MapService> map_service_;
   std::unique_ptr<HMI> hmi_;
 };
