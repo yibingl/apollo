@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package apollo.drivers.smartereye;
+
+message CameraConf {
+  optional string camera_dev = 1 [default = "192.168.20.100"];
+  optional string frame_id = 2 [default = "smartereye"];
+  optional string pixel_format = 3 [default = "yuyv"];
+  optional uint32 width = 4 [default = 1280];
+  optional uint32 height = 5 [default = 960];
+  optional uint32 frame_rate = 6 [default = 25];
+  optional bool use_host_time = 7 [default = false];
+}
